@@ -20,8 +20,14 @@ public class server {
         String message = "";
         while ( true ) {
             message = in.readLine();
+            message = message.toUpperCase();
             System.out.println( "recv: " + message );
-            if ( message.equals( "CLOSECONNECTION" ) ) {
+            // Calculator goes here
+            if (message.equals("HELLO WORLD"))
+            {
+                System.out.println("Hello World message received.");
+            }
+            else if ( message.equals( "CLOSECONNECTION" ) ) {
                 s.close();
                 ss.close();
                 System.exit(0);
