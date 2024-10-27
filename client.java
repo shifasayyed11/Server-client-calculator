@@ -1,9 +1,7 @@
-package server_client_calculator;
-
 import java.io.*;
 import java.net.*;
 
-public class Client {
+public class client {
 	public static void main(String[]args) throws IOException {
 		int portNumber = 8001;
 		String hostName = ("127.0.0.1");
