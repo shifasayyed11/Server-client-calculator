@@ -1,36 +1,87 @@
+package server_client_calculator;
+
 import java.io.*;
 import java.net.*;
 
-public class server {
-    public static void main( String[] args ) throws IOException {
-
+public class Server {
+    public static void main(String[] args) throws IOException {
         int portNumber = 8001;
 
-        //it needs to be a socket that awaits and accepts connections
-        ServerSocket ss = new ServerSocket( portNumber );
+        try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
+            System.out.println("Server is running on port " + portNumber + "...");
 
-        //sockets just like the client
-        System.out.println( "Waiting for connections..." );
+            while (true) {
+                try (Socket clientSocket = serverSocket.accept()) {
+                    System.out.println("Client connected: " + clientSocket.getInetAddress());
 
-        Socket s = ss.accept();
-        if ( s.isConnected() ) System.out.println( "Connected: " + s.getInetAddress() + ":" + s.getPort() );
+                    PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                    BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-        BufferedReader in = new BufferedReader( new InputStreamReader( s.getInputStream() ) );
+                    // Handshake verification
+                    String handshake = in.readLine();
+                    if ("HELLO".equals(handshake)) {  // assuming "HELLO" as handshake phrase
+                        out.println("OK");
+                    } else {
+                        out.println("Handshake failed");
+                        continue;
+                    }
 
-        String message = "";
-        while ( true ) {
-            message = in.readLine();
-            message = message.toUpperCase();
-            System.out.println( "recv: " + message );
-            // Calculator goes here
-            if (message.equals("HELLO WORLD"))
-            {
-                System.out.println("Hello World message received.");
-            }
-            else if ( message.equals( "CLOSECONNECTION" ) ) {
-                s.close();
-                ss.close();
-                System.exit(0);
+                    // Main loop for handling operations
+                    while (true) {
+                        String operation = in.readLine();
+                        if ("CLOSECONNECTION".equals(operation)) {
+                            System.out.println("Client disconnected.");
+                            break;
+                        }
+
+                        // Check for valid operation
+                        if (!operation.matches("ADD|SUBTRACT|MULTIPLY|DIVIDE")) {
+                            out.println("Invalid operation. Please enter ADD, SUBTRACT, MULTIPLY, or DIVIDE.");
+                            continue;
+                        }
+
+                        // Receive numbers
+                        String num1Str = in.readLine();
+                        String num2Str = in.readLine();
+
+                        // Parse numbers and handle errors
+                        double num1, num2;
+                        try {
+                            num1 = Double.parseDouble(num1Str);
+                            num2 = Double.parseDouble(num2Str);
+                        } catch (NumberFormatException e) {
+                            out.println("Invalid numbers. Please enter numeric values.");
+                            continue;
+                        }
+
+                        // Perform calculation
+                        double result = 0;
+                        switch (operation) {
+                            case "ADD":
+                                result = num1 + num2;
+                                break;
+                            case "SUBTRACT":
+                                result = num1 - num2;
+                                break;
+                            case "MULTIPLY":
+                                result = num1 * num2;
+                                break;
+                            case "DIVIDE":
+                                if (num2 != 0) {
+                                    result = num1 / num2;
+                                } else {
+                                    out.println("Error: Division by zero is undefined.");
+                                    continue;
+                                }
+                                break;
+                        }
+
+                        // Send result to client
+                        out.println("Result: " + result);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Connection error: " + e.getMessage());
+                }
             }
         }
     }
