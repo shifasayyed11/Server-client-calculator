@@ -2,12 +2,23 @@ package server_client_calculator;
 
 import java.io.*;
 import java.net.*;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ServerSocketFactory;
+import javax.net.ssl.SSLServerSocketFactory;
+
 
 public class Server {
     public static void main(String[] args) throws IOException {
         int portNumber = 8001;
 
-        try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
+        //tell the execution environment where the keystore (and the certificate) is
+        System.setProperty( "javax.net.ssl.keyStore", "./keystore.jks" );
+        System.setProperty( "javax.net.ssl.keyStorePassword", "1qaz2wsx" );
+
+        SSLServerSocketFactory ssf = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+
+        try (SSLServerSocket serverSocket = (SSLServerSocket) ssf.createServerSocket( portNumber )) {
+            serverSocket.setEnabledProtocols( new String[]{"TLSv1.3", "TLSv1.2"} );
             System.out.println("Server is running on port " + portNumber + "...");
 
             while (true) {

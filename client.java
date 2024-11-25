@@ -2,15 +2,24 @@ package server_client_calculator;
 
 import java.io.*;
 import java.net.*;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 public class Client {
     public static void main(String[] args) throws IOException {
         int portNumber = 8001;
+
         String hostName = "127.0.0.1";
 
+        System.setProperty("javax.net.ssl.trustStore", "./truststore.jks");
+        System.setProperty("javax.net.ssl.trustStorePassword", "1qaz2wsx");
+
+        SSLSocketFactory factory = ( SSLSocketFactory ) SSLSocketFactory.getDefault();
+
         System.out.println("Connecting...");
-        try (Socket s = new Socket(hostName, portNumber)) {
+        try (SSLSocket s = (SSLSocket) factory.createSocket( hostName, portNumber )) {
             if (s.isConnected()) {
+                s.startHandshake(); // the SSL handshake
                 System.out.println("Connected to " + s.getInetAddress() + ":" + s.getPort() +
                         " from " + s.getLocalAddress() + ":" + s.getLocalPort());
             }
