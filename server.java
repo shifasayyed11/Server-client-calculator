@@ -9,7 +9,7 @@ public class Server {
     public static void main(String[] args) throws IOException {
         int portNumber = 8001;
 
-        //tell the execution environment where the keystore (and the certificate) is
+        // Add location of jks file (contains server-side keys and certificate)
         System.setProperty( "javax.net.ssl.keyStore", "./keystore.jks" );
         System.setProperty( "javax.net.ssl.keyStorePassword", "1qaz2wsx" );
 
