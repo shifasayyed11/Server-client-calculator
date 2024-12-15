@@ -9,6 +9,7 @@ public class Client {
 
         String hostName = "127.0.0.1";
 
+        // Adding location of server certificate, and client key (all contained in truststore.jks)
         System.setProperty("javax.net.ssl.trustStore", "./truststore.jks");
         System.setProperty("javax.net.ssl.trustStorePassword", "1qaz2wsx");
 
